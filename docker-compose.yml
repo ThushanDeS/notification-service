@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  notification-service:
+    build: .
+    container_name: notification-service
+    ports:
+      - '3004:3004'
+    environment:
+      - PORT=3004
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/notification-service
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - COURSE_SERVICE_URL=http://course-service:3002
+      - JWT_SECRET=dev-secret-key-change-in-production
+    depends_on:
+      - mongo
+    networks:
+      - campus-network
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: notification-mongo
+    ports:
+      - '27020:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - campus-network
+    restart: unless-stopped
+
+networks:
+  campus-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
